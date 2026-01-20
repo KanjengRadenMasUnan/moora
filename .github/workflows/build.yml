@@ -1,0 +1,42 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Ambil kode dari repository
+      - uses: actions/checkout@v4
+
+      # 2. Install Java (Dibutuhkan oleh beberapa komponen Flutter)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Install Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          # Menggunakan versi terbaru
+      
+      # 4. Download dependencies (library)
+      - name: Get Dependencies
+        run: flutter pub get
+
+      # 5. Build aplikasi ke format Windows Release
+      - name: Build Windows
+        run: flutter build windows --release
+
+      # 6. Upload hasil build agar bisa didownload
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aplikasi-SPK-Moora-Windows
+          path: build/windows/x64/runner/Release
